@@ -50,7 +50,7 @@ public class GameScore {
         return score;
     }
 
-    public void getScore(Bird bird) {
+    public void setScore(Bird bird) {
         if (!bird.isDead()) {
             score += 1;
         }
