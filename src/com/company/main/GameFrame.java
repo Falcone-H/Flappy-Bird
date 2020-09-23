@@ -1,14 +1,16 @@
 package com.company.main;
 
 import com.company.util.Constant;
-
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
-import static com.company.util.Constant.GAME_INTERVAL;
+import static com.company.util.Constant.*;
 
-public class GameFrame {
+public class GameFrame extends Frame implements Runnable{
     private static final long serialVersionUID = 1L;
 
     private static int gameState;   //游戏状态
@@ -29,10 +31,26 @@ public class GameFrame {
         initGame(); //初始化游戏对象
     }
 
+    //初始化游戏窗口
+    private void initFrame() {
+        setSize(FRAME_WIDTH, FRAME_HEIGHT); // 设置窗口大小
+        setTitle(GAME_TITLE); // 设置窗口标题
+        setLocation(FRAME_X, FRAME_Y); // 窗口初始位置
+        setResizable(false); // 设置窗口大小不可变
+        // 添加关闭窗口事件（监听窗口发生的事件，派发给参数对象，参数对象调用对应的方法）
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.exit(0); // 结束程序
+            }
+        });
+        addKeyListener(new BirdKeyListener()); // 添加按键监听
+    }
+
     //用于接收按键事件的对象的内部类
-    class BirdKeyListener implements keyListener {
+    class BirdKeyListener implements KeyListener {
         //按键按下，根据游戏当前状态调用不同的方法
-        public void keyPressed(keyEvent e) {
+        public void keyPressed(KeyEvent e) {
             int keycode = e.getKeyChar();
             switch (gameState) {
                 case STATE_READY:
@@ -96,7 +114,7 @@ public class GameFrame {
     // 系统线程：屏幕内容的绘制，窗口事件的监听与处理
     // 两个线程会抢夺系统资源，可能会出现一次刷新周期所绘制的内容，并没有在一次刷新周期内完成
     // （双缓冲）单独定义一张图片，将需要绘制的内容绘制到这张图片，再一次性地将图片绘制到窗口
-    private final BufferedImage bufImg = new BufferedImage(Constant.FRAME_WIDTH, Constant.FRAME_HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
+    private final BufferedImage bufImg = new BufferedImage(FRAME_WIDTH, Constant.FRAME_HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
 
     //绘制游戏内容
     //当repaint()方法被调用，JVM会调用update()
@@ -127,11 +145,11 @@ public class GameFrame {
     public void run() {
         while (true) {
             repaint();  //通过调用repaint()，让JVM调用update()
-        }
-        try {
-            Thread.sleep(GAME_INTERVAL);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            try {
+                Thread.sleep(GAME_INTERVAL);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
